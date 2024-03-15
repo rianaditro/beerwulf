@@ -57,16 +57,20 @@ class Scraper:
     def parse_taste_tables(self,html):
         taste_tables = dict()
         soup = BeautifulSoup(html,"html.parser")
-        taste_tables_html = soup.find("div","taste-tables")
-        div = taste_tables_html.find_all("div")
-        i = 0
-        while i in range(len(div)):   
-            name = div[i].section.span.text.strip()
-            value = div[i].section.div["title"]
-            taste_tables[name]=value
-            i = i+3
-            if i > 15:
-                break
+        try:
+            taste_tables_html = soup.find("div","taste-tables")
+            div = taste_tables_html.find_all("div")
+            i = 0
+            while i in range(len(div)):   
+                name = div[i].section.span.text.strip()
+                value = div[i].section.div["title"]
+                taste_tables[name]=value
+                i = i+3
+                if i > 15:
+                    break
+        except AttributeError:
+            pass
+
         return taste_tables
 
     def details(self,url,html):
@@ -85,7 +89,7 @@ class Scraper:
 
         links = soup.find_all("a",class_=re.compile("product search-product product-info-container bw-plp-product-card"))
         all_links = [f'https://www.beerwulf.com{link["href"]}' for link in links if "beercases" not in link["href"]]
-        print(f"Get {len(all_links)} of items")
+        print(f"Get {len(all_links)} of links")
 
         return all_links
     
@@ -99,6 +103,6 @@ if __name__=="__main__":
     url = "https://www.beerwulf.com/en-gb/c/beer-kegs"
     beer = Scraper()
     links = beer.extract_links(url)
-    items = [beer.details(item,beer.get_html(item)) for item in links]    
+    items = [beer.details(link,beer.get_html(link)) for link in links]    
     
-    beer.save(items,"oop_output.xlsx")
+    beer.save(items,"beer_product.xlsx")
