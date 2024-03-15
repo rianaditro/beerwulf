@@ -69,8 +69,13 @@ class Scraper:
                 break
         return taste_tables
 
-    def details(self,html):
-        pass
+    def details(self,url,html):
+        product_details = self.parse_script(html)
+        table_details = self.parse_table_details(html)
+        taste_tables = self.parse_taste_tables(html)
+        details = {"ProductURL":url}
+        details = {**product_details,**table_details,**taste_tables,**details}
+        return details
 
     def extract_links(self,url):
         send_requests = self.session.get(url)
@@ -91,19 +96,9 @@ class Scraper:
 
 
 if __name__=="__main__":
-    # url = "https://www.beerwulf.com/en-gb/c/beer-kegs"
-    # beer = Scraper()
-    # links = beer.extract_links(url)
-    # items = [beer.details(item) for item in links]    
-    
-    # beer.save(items,"oop_output.xlsx")
-
-    url = "https://www.beerwulf.com/en-gb/p/beers/affligem-blond-2l-keg"
+    url = "https://www.beerwulf.com/en-gb/c/beer-kegs"
     beer = Scraper()
-    html = beer.get_html(url)
-    data1 = beer.parse_script(html)
-    data2 = beer.parse_table_details(html)
-    data3 = beer.parse_taste_tables(html)
-    print(data1)
-    print(data2)
-    print(data3)
+    links = beer.extract_links(url)
+    items = [beer.details(item,beer.get_html(item)) for item in links]    
+    
+    beer.save(items,"oop_output.xlsx")
