@@ -8,11 +8,20 @@ class Scraper:
     def __init__(self):
         self.session = HTMLSession()
 
-    def details(self,url):
+    def get_html(self,url):
+        send_requests = self.session.get(url)
+        print(f"Get {url}")
+        html = send_requests.html.html
+        return html
+
+    def details(self,html):
         item = {
+            "ProductUrl":url,
             "Title":"",
             "Price":"",
+            "PriceCurrency":"",
             "Rating":"",
+            "ReviewCount":"",
             "Availability":"",
             "Style":"",
             "Volume":"",
@@ -20,14 +29,8 @@ class Scraper:
             "Malt":"",
             "Origin":"",
             "Brewer":"",
-            "Allergens":"",
-            "Hops":"",
-            "NutritionalValues":""
+            
         }
-
-        send_requests = self.session.get(url)
-        print(url)
-        html = send_requests.html.html
 
         soup = BeautifulSoup(html,"html.parser")
         item["Title"] = soup.find("span","bw-text-h2 bw-mb-3").text.strip()
@@ -73,9 +76,27 @@ class Scraper:
 
 
 if __name__=="__main__":
-    url = "https://www.beerwulf.com/en-gb/c/beer-kegs"
-    beer = Scraper()
-    links = beer.extract_links(url)
-    items = [beer.details(item) for item in links]    
+    # url = "https://www.beerwulf.com/en-gb/c/beer-kegs"
+    # beer = Scraper()
+    # links = beer.extract_links(url)
+    # items = [beer.details(item) for item in links]    
     
-    beer.save(items,"oop_output.xlsx")
+    # beer.save(items,"oop_output.xlsx")
+
+    url = "https://www.beerwulf.com/en-gb/p/beers/affligem-blond-2l-keg"
+    beer = Scraper()
+    html = beer.get_html(url)
+    soup = BeautifulSoup(html, "html.parser")
+    taste_tables = soup.find("div","taste-tables")
+    div = taste_tables.find_all("div")
+    print(len(div))
+    i = 0
+    while i in range(len(div)):
+        print(i)       
+        name = div[i].section.span.text.strip()
+        value = div[i].section.div["title"]
+        print(name)
+        print(value)
+        i = i+3
+        if i > 15:
+            break
