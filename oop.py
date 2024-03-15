@@ -1,7 +1,7 @@
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 
-import json,pandas,re, concurrent.futures
+import json,pandas,re
 
 
 class Scraper:
@@ -87,7 +87,7 @@ class Parser:
 
         return taste_tables
 
-    def details(self):
+    def extract(self):
         product_details = self.parse_script()
         table_details = self.parse_table_details()
         taste_tables = self.parse_taste_tables()
@@ -105,7 +105,7 @@ def main(url):
     links = beer.extract_links(url)
     for link in links:
         html = beer.get_html(link)
-        data = Parser(html).details()
+        data = Parser(html).extract()
         data["ProductURL"] = link
         result.append(data)
     save_to_excel(result)
